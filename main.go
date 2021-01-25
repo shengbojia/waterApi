@@ -12,23 +12,14 @@ func main() {
 		log.Fatalf("Database connection failed: %s", err.Error())
 	}
 
-	defer db.Close()
+	app := &App{
+		Router: gorouter.New(),
+		Database: db,
+	}
 
-	router := gorouter.New()
-	setupRouter(router)
+	defer app.Database.Close()
 
-	log.Fatal(http.ListenAndServe(":8000", router))
-}
+	app.SetupRouter()
 
-func setupRouter(router *gorouter.Router) {
-	router.POST("/drinks", createDrink)
-	router.GET("/drinks", getDrinks)
-}
-
-func createDrink(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func getDrinks(w http.ResponseWriter, r *http.Request) {
-
+	log.Fatal(http.ListenAndServe(":8000", app.Router))
 }
